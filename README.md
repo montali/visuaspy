@@ -87,10 +87,6 @@ Contributions are what make the open source community such an amazing place to b
 5. Open a Pull Request
 
 
-## Stalkers cleaning
-```
-"stalkers": \[[a-zA-Z.\-_\d", ]*\]
-```
 <!-- LICENSE -->
 ## License
 
