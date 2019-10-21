@@ -164,7 +164,7 @@ if __name__ == '__main__':
                     if (user_info['user']['mutual_followers_count']>1):
                         if(args.token != None):
                             if not user_info['user']['username'] in saved_stalkers:
-                                updater.bot.send_photo(chat_id=args.chat, photo = user_info['user']['hd_profile_pic_versions'][1]['url'], caption="Found a stalker!\n" + "Username: "+user_info['user']['username']+"\nFull name: "+user_info['user']['full_name']+"\nFollowers: "+str(user_info['user']['follower_count'])+"\nFollowing: "+str(user_info['user']['following_count']))
+                                updater.bot.send_photo(chat_id=args.chat, photo = user_info['user']['profile_pic_url'], caption="Found a stalker!\n" + "Username: "+user_info['user']['username']+"\nFull name: "+user_info['user']['full_name']+"\nFollowers: "+str(user_info['user']['follower_count'])+"\nFollowing: "+str(user_info['user']['following_count'])+"\nURL: http://instagram.com/"+str(user_info['user']['username']))
                                 saved_stalkers.append(user_info['user']['username'])
                         else:
                             if not user_info['user']['username'] in saved_stalkers:
