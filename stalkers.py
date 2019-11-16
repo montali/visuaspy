@@ -129,11 +129,13 @@ if __name__ == '__main__':
     # Show when login expires
     cookie_expiry = api.cookie_jar.auth_expires
     print('Cookie Expiry: {0!s}'.format(datetime.datetime.fromtimestamp(cookie_expiry).strftime('%Y-%m-%dT%H:%M:%SZ')))
-    saved_stalkers = []
-    if not os.path.isfile('stalkers.txt'):
-        open ('stalkers.txt', 'w+')
-        print("stalkers.txt not existing. Creating it.")
-    saved_stalkers = [line.rstrip('\n') for line in open('stalkers.txt')]
+    saved_stalkers = {}
+    if not os.path.isfile('stalkers.json'):
+        open ('stalkers.json', 'w+')
+        print("stalkers.json not existing. Creating it.")
+#    saved_stalkers = [line.rstrip('\n') for line in open('stalkers.txt')]
+    with open("stalkers.json", "r") as stalkersFile:
+        saved_stalkers = json.load(stalkersFile)
     print(saved_stalkers)
     story_feed = api.user_story_feed(api.authenticated_user_id)
     my_feed = story_feed.get('reel', [])
@@ -150,6 +152,7 @@ if __name__ == '__main__':
     for follower in my_followers:
         my_followers_ids.append(follower['pk'])
     for stor in my_feed.get('items', []):
+        # If we find a stalker, we'll want to save the story ID too. This lets us check if a user re-spies us.
         viewers_result = api.story_viewers(stor.get('id', []))
         story_viewers = viewers_result['users']
         last_id = viewers_result['next_max_id']
@@ -163,18 +166,24 @@ if __name__ == '__main__':
                     user_info = api.user_info(stalker['pk'])
                     if (user_info['user']['mutual_followers_count']>1):
                         if(args.token != None):
-                            if not user_info['user']['username'] in saved_stalkers:
-                                updater.bot.send_photo(chat_id=args.chat, photo = user_info['user']['profile_pic_url'], caption="Found a stalker!\n" + "Username: "+user_info['user']['username']+"\nFull name: "+user_info['user']['full_name']+"\nFollowers: "+str(user_info['user']['follower_count'])+"\nFollowing: "+str(user_info['user']['following_count'])+"\nURL: http://instagram.com/"+str(user_info['user']['username']))
-                                saved_stalkers.append(user_info['user']['username'])
+                            # Check if the stalker is found in the saved ones: if so, check if the story we're checking was already there.
+                            if user_info['user']['username'] in saved_stalkers:
+                                if not stor.get('id', []) in saved_stalkers[user_info['user']['username']]["stories"]:
+                                    updater.bot.send_photo(chat_id=args.chat, photo = user_info['user']['profile_pic_url'], caption="Found a stalker!\n" + "Username: "+user_info['user']['username']+"\nFull name: "+user_info['user']['full_name']+"\nFollowers: "+str(user_info['user']['follower_count'])+"\nFollowing: "+str(user_info['user']['following_count'])+"\nURL: http://instagram.com/"+str(user_info['user']['username']))
+                                    saved_stalkers[user_info['user']['username']]["stories"].append(stor.get('id', []))
+                            else:
+                                updater.bot.send_photo(chat_id=args.chat, photo = user_info['user']['profile_pic_url'], caption="Found a recessive stalker!\n" + "Username: "+user_info['user']['username']+"\nFull name: "+user_info['user']['full_name']+"\nFollowers: "+str(user_info['user']['follower_count'])+"\nFollowing: "+str(user_info['user']['following_count'])+"\nURL: http://instagram.com/"+str(user_info['user']['username']))
+                                saved_stalkers[user_info['user']['username']] = {}
+                                saved_stalkers[user_info['user']['username']]["stories"] = []
+                                saved_stalkers[user_info['user']['username']]["stories"].append(stor.get('id', []))
                         else:
                             if not user_info['user']['username'] in saved_stalkers:
                                 print("Found a stalker!\n" + "Username: "+user_info['user']['username']+"\nFull name: "+user_info['user']['full_name']+"\nFollowers: "+str(user_info['user']['follower_count'])+"\nFollowing: "+str(user_info['user']['following_count']))
-                                saved_stalkers.append(user_info['user']['username'])
+                                saved_stalkers[user_info['user']['username']]["stories"].append(stor.get('id', []))
     print(saved_stalkers)
     # Saving and closing
-    with open('stalkers.txt', 'w') as stalkers_file:
-        for saving_stalker in saved_stalkers:
-            stalkers_file.write(saving_stalker+"\n")
+    with open('stalkers.json', 'w') as stalkers_file:
+        json.dump(saved_stalkers, stalkers_file)
 
     if (args.token!=None):
         updater.stop()
