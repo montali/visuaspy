@@ -171,11 +171,11 @@ if __name__ == '__main__':
                                 if not stor.get('id', []) in saved_stalkers[user_info['user']['username']]["stories"]:
                                     updater.bot.send_photo(chat_id=args.chat, photo = user_info['user']['profile_pic_url'], caption="Found a stalker!\n" + "Username: "+user_info['user']['username']+"\nFull name: "+user_info['user']['full_name']+"\nFollowers: "+str(user_info['user']['follower_count'])+"\nFollowing: "+str(user_info['user']['following_count'])+"\nURL: http://instagram.com/"+str(user_info['user']['username']))
                                     saved_stalkers[user_info['user']['username']]["stories"].append(stor.get('id', []))
-                            else:
-                                updater.bot.send_photo(chat_id=args.chat, photo = user_info['user']['profile_pic_url'], caption="Found a recessive stalker!\n" + "Username: "+user_info['user']['username']+"\nFull name: "+user_info['user']['full_name']+"\nFollowers: "+str(user_info['user']['follower_count'])+"\nFollowing: "+str(user_info['user']['following_count'])+"\nURL: http://instagram.com/"+str(user_info['user']['username']))
-                                saved_stalkers[user_info['user']['username']] = {}
-                                saved_stalkers[user_info['user']['username']]["stories"] = []
-                                saved_stalkers[user_info['user']['username']]["stories"].append(stor.get('id', []))
+                            #else:
+                                #updater.bot.send_photo(chat_id=args.chat, photo = user_info['user']['profile_pic_url'], caption="Found a recessive stalker!\n" + "Username: "+user_info['user']['username']+"\nFull name: "+user_info['user']['full_name']+"\nFollowers: "+str(user_info['user']['follower_count'])+"\nFollowing: "+str(user_info['user']['following_count'])+"\nURL: http://instagram.com/"+str(user_info['user']['username']))
+                             #   saved_stalkers[user_info['user']['username']] = {}
+                               # saved_stalkers[user_info['user']['username']]["stories"] = []
+                                #saved_stalkers[user_info['user']['username']]["stories"].append(stor.get('id', []))
                         else:
                             if not user_info['user']['username'] in saved_stalkers:
                                 print("Found a stalker!\n" + "Username: "+user_info['user']['username']+"\nFull name: "+user_info['user']['full_name']+"\nFollowers: "+str(user_info['user']['follower_count'])+"\nFollowing: "+str(user_info['user']['following_count']))
