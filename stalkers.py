@@ -131,7 +131,8 @@ if __name__ == '__main__':
     print('Cookie Expiry: {0!s}'.format(datetime.datetime.fromtimestamp(cookie_expiry).strftime('%Y-%m-%dT%H:%M:%SZ')))
     saved_stalkers = {}
     if not os.path.isfile('stalkers.json'):
-        open ('stalkers.json', 'w+')
+        with open ('stalkers.json', 'w+') as newFile:
+            newFile.write('{}')
         print("stalkers.json not existing. Creating it.")
 #    saved_stalkers = [line.rstrip('\n') for line in open('stalkers.txt')]
     with open("stalkers.json", "r") as stalkersFile:
