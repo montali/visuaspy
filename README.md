@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/simmontali/visuaspy">
+  <a href="https://github.com/we-based/visuaspy">
     <img src="res/sunglasses.png" alt="Logo" width="130" height="130">
   </a>
   <h1 align="center">VisuaSpy</h1>
@@ -97,9 +97,9 @@ Distributed under the GPL License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-[Simone Montali](https://monta.li)
+[WEBased](https://webased.it)
 
-Project Link: [https://github.com/simmontali/VisuaSpy](https://github.com/simmontali/visuaspy)
+Project Link: [https://github.com/we-based/VisuaSpy](https://github.com/simmontali/visuaspy)
 
 [screenshot]: res/screenshot.gif "Screenshot"
 [logo]: res/sunglasses.png
