@@ -2,3 +2,4 @@
 src/
 # username.json and stalkers.json contain sensitive data
 *.json
+.DS_Store
