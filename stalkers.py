@@ -17,8 +17,6 @@ try:
         ClientCookieExpiredError, ClientLoginRequiredError,
         __version__ as client_version)
 except ImportError:
-    import sys
-
     sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
     from instagram_private_api import (
         Client, ClientError, ClientLoginError,
@@ -93,6 +91,7 @@ class StalkerFinder:
         self.story = self.api.user_story_feed(self.api.authenticated_user_id).get('reel', [])
 
     def setup_args(self):
+        '''Parse the given arguments'''
         parser = argparse.ArgumentParser()
         parser.add_argument('-u', '--username', dest='username', type=str, required=True)
         parser.add_argument('-p', '--password', dest='password', type=str, required=True)
@@ -101,42 +100,54 @@ class StalkerFinder:
         self.args = parser.parse_args()
 
     def setup_api(self):
+        '''
+        isitialise self.api for the given user
+        reusing or creating new settings
+        '''
         try:
-            with open(self.settings_path) as settingsFile:
-                cached_settings = json.load(settingsFile, object_hook=from_json)
+            with open(self.settings_path) as settings_file:
+                cached_settings = json.load(settings_file, object_hook=from_json)
                 self.device_id = cached_settings.get('device_id')
                 print('Reusing settings: {0}'.format(self.settings_path))
                 self.api = Client(self.user.username,
                                   self.user.password,
                                   settings=cached_settings)
-        except (ClientCookieExpiredError, ClientLoginRequiredError, FileNotFoundError) as e:
-            print(str(e))
+        except (ClientCookieExpiredError, ClientLoginRequiredError, FileNotFoundError) as ex:
+            print(str(ex))
             # Login expired, renew cookie upon login
             self.api = Client(self.user.username,
                               self.user.password,
                               on_login=lambda x: on_login(x, self.settings_path))
-        except ClientLoginError as e:
-            print('ClientLoginError {0!s}'.format(e))
+        except ClientLoginError as ex:
+            print('ClientLoginError {0!s}'.format(ex))
             sys.exit(9)
-        except ClientError as e:
-            print('ClientError {0!s} (Code: {1:d}, Response: {2!s})'.format(e.msg,
-                                                                            e.code,
-                                                                            e.error_response))
+        except ClientError as ex:
+            print('ClientError {0!s} (Code: {1:d}, Response: {2!s})'.format(ex.msg,
+                                                                            ex.code,
+                                                                            ex.error_response))
             sys.exit(9)
-        except Exception as e:
-            print('Unexpected Exception: {0!s}'.format(e))
+        except Exception as ex:
+            print('Unexpected Exception: {0!s}'.format(ex))
             sys.exit(99)
 
     def setup_stalkers(self):
+        '''
+        create stalkers file if it doesn't exist
+        '''
         if not os.path.isfile('stalkers.json'):
-            with open('stalkers.json', 'w+') as newFile:
-                newFile.write('{}')
-        with open("stalkers.json", "r") as stalkersFile:
-            self.stalkers = json.load(stalkersFile)
+            with open('stalkers.json', 'w+') as new_file:
+                new_file.write('{}')
+        with open("stalkers.json", "r") as stalkers_file:
+            self.stalkers = json.load(stalkers_file)
 
     def find_em(self):
+        '''
+        check who watched your story but does not follow you
+        and print it
+        '''
         if self.story is None:
             print('You do not have any stories.')
+            self.stop_bot()
             return
         uuid = self.api.generate_uuid()
         followers = []
@@ -163,7 +174,7 @@ class StalkerFinder:
                 if not stalker['pk'] in self.user.followers:
                     stalker_info = self.api.user_info(stalker['pk'])['user']
                     # if he's not a bot
-                    if stalker_info['mutual_followers_count'] is not 0:
+                    if stalker_info['mutual_followers_count'] > 0:
                         # new stalker found
                         stalker_uname = stalker_info['username']
                         if not stalker_uname in self.stalkers:
@@ -175,13 +186,20 @@ class StalkerFinder:
                         elif element.get('id', []) not in self.stalkers[stalker_uname]['stories']:
                             self.print_stalker(stalker_info, True)
                             self.stalkers[stalker_uname]['stories'].append(element.get('id', []))
-        with open('stalkers.json', 'w') as stalkersFile:
-            json.dump(self.stalkers, stalkersFile)
+        with open('stalkers.json', 'w') as stalkers_file:
+            json.dump(self.stalkers, stalkers_file)
+        self.stop_bot()
+
+
+    def stop_bot(self):
+        '''Cleanup self.updater'''
         if self.args.token is not None:
             self.updater.stop()
             self.updater.is_idle = False
 
+
     def print_stalker(self, user, recurrent):
+        '''print the stalker on stdout and send a message through the bot'''
         msg = ''
         if recurrent:
             msg = 'Recurrent'
@@ -201,6 +219,8 @@ class StalkerFinder:
 
 
 if __name__ == '__main__':
-    sf = StalkerFinder()
-    sf.find_em()
-    sys.exit(0)
+    def main():
+        '''Create a stalkerFinder and run it'''
+        s_finder = StalkerFinder()
+        s_finder.find_em()
+        sys.exit(0)
