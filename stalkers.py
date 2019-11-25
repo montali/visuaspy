@@ -217,10 +217,13 @@ class StalkerFinder:
                                         photo=user['profile_pic_url'],
                                         caption=msg)
 
+def main():
+    '''Create a stalkerFinder and run it'''
+    s_finder = StalkerFinder()
+    s_finder.find_em()
+    sys.exit(0)
+
 
 if __name__ == '__main__':
-    def main():
-        '''Create a stalkerFinder and run it'''
-        s_finder = StalkerFinder()
-        s_finder.find_em()
-        sys.exit(0)
+    main()
+    
